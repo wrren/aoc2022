@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 use std::env;
-use std::fs;
 
 struct Elf {
     foods: Vec<u32>
@@ -11,10 +10,6 @@ impl Elf {
         Elf {
             foods: Vec::new()
         }
-    }
-
-    fn has_food(&self) -> bool {
-        !self.foods.is_empty()
     }
 
     fn add_food(&mut self, calories: u32) {
@@ -56,33 +51,22 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
 
-    println!("Reading input from {}", file_path);
-
-    let contents = fs::read_to_string(file_path)
-        .expect("Should have been able to read the file");
-
-    let lines: Vec<&str> = contents.split("\n").collect();
-    let mut elves: Vec<Elf> = Vec::new();
-    let mut elf: Elf = Elf::new();
-
-    for line in lines.iter() {
+    let mut elves = vec![Elf::new()];
+    fn reducer(line: &str, mut elves: Vec<Elf>) -> Vec<Elf> {
         if line.is_empty() {
-            if elf.has_food() {
-                elves.push(elf);
-                elf = Elf::new();
-            }
-        } else {
-            let calories = line.parse::<u32>();
-            if calories.is_ok() {
-                elf.add_food(calories.unwrap());
-            }
+            elves.push(Elf::new());
+            return elves;
         }
+
+        let calories = line.parse::<u32>();
+        if calories.is_ok() {
+            elves.last_mut().unwrap().add_food(calories.unwrap());
+        }
+
+        return elves;
     }
 
-    if elf.has_food() {
-        elves.push(elf);
-    }
-
+    elves = aoc::reduce_file(file_path, elves, reducer);
     elves.sort();
     elves.reverse();
 
