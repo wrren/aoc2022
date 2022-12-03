@@ -1,4 +1,3 @@
-use std::env;
 
 struct RockPaperScissors {
     moves: (char, char),
@@ -43,8 +42,9 @@ impl RockPaperScissors {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let file_path = &args[1];
+    let input = aoc::get_input(2)
+        .expect("Failed to retrieve input.");
+    
     let mut moves: Vec<RockPaperScissors> = Vec::new();
 
     fn reducer(line: &str, mut moves: Vec<RockPaperScissors>) -> Vec<RockPaperScissors> {
@@ -58,7 +58,7 @@ fn main() {
         return moves;
     }
 
-    moves = aoc::reduce_file::<Vec<RockPaperScissors>>(file_path, moves, reducer);
+    moves = aoc::reduce_string::<Vec<RockPaperScissors>>(&input, moves, reducer);
 
     let mut total: u32 = 0;
 

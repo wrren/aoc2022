@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::env;
 
 struct Elf {
     foods: Vec<u32>
@@ -48,8 +47,8 @@ impl Ord for Elf {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let file_path = &args[1];
+    let input = aoc::get_input(1)
+        .expect("Failed to retrieve input.");
 
     let mut elves = vec![Elf::new()];
     fn reducer(line: &str, mut elves: Vec<Elf>) -> Vec<Elf> {
@@ -66,7 +65,7 @@ fn main() {
         return elves;
     }
 
-    elves = aoc::reduce_file(file_path, elves, reducer);
+    elves = aoc::reduce_string(&input, elves, reducer);
     elves.sort();
     elves.reverse();
 
