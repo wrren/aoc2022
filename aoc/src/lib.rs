@@ -80,7 +80,8 @@ pub fn get_input(day: u32) -> Result<String, reqwest::Error> {
 }
 
 pub fn download_input(day: u32) -> Result<String, reqwest::Error> {
-    let session = env::var("AOC_SESSION").unwrap();
+    let session = env::var("AOC_SESSION")
+        .expect("You must define an AOC_SESSION environment variable for input downloading to work!");
 
     return download_input_with_session(day, session);
 }
