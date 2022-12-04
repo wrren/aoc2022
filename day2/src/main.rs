@@ -42,23 +42,21 @@ impl RockPaperScissors {
 }
 
 fn main() {
-    let input = aoc::get_input(2)
-        .expect("Failed to retrieve input.");
-    
     let mut moves: Vec<RockPaperScissors> = Vec::new();
 
-    fn reducer(line: &str, mut moves: Vec<RockPaperScissors>) -> Vec<RockPaperScissors> {
+    fn reducer(line: &str, moves: &mut Vec<RockPaperScissors>) {
         let components: Vec<&str> = line.split(" ").collect();
 
         if components.len() == 2 {
             let action = RockPaperScissors::new(components[0].chars().last().unwrap(), components[1].chars().last().unwrap());
             moves.push(action);
         }
-
-        return moves;
     }
 
-    moves = aoc::reduce_string::<Vec<RockPaperScissors>>(&input, moves, reducer);
+    if !aoc::reduce_input::<Vec<RockPaperScissors>>(2, &mut moves, reducer) {
+        println!("Failed to retrieve input.");
+        return;
+    }
 
     let mut total: u32 = 0;
 

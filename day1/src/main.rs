@@ -47,25 +47,25 @@ impl Ord for Elf {
 }
 
 fn main() {
-    let input = aoc::get_input(1)
-        .expect("Failed to retrieve input.");
-
     let mut elves = vec![Elf::new()];
-    fn reducer(line: &str, mut elves: Vec<Elf>) -> Vec<Elf> {
+
+    fn reducer(line: &str, elves: &mut Vec<Elf>) {
         if line.is_empty() {
             elves.push(Elf::new());
-            return elves;
+            return;
         }
 
         let calories = line.parse::<u32>();
         if calories.is_ok() {
             elves.last_mut().unwrap().add_food(calories.unwrap());
         }
-
-        return elves;
     }
 
-    elves = aoc::reduce_string(&input, elves, reducer);
+    if !aoc::reduce_input(1, &mut elves, reducer) {
+        println!("Error while retrieving input for day 1.");
+        return;
+    }
+
     elves.sort();
     elves.reverse();
 

@@ -60,6 +60,23 @@ fn cache_write(day: u32, input: &String) {
     }
 }
 
+pub fn reduce_input<T>(day: u32, initial: &mut T, reducer: fn(line: &str, accumulator: &mut T)) -> bool {
+    let input = get_input(day);
+
+    if input.is_err() {
+        return false
+    } else {
+        let body = input.unwrap();
+        let lines: Vec<&str> = body.split("\n").collect();
+
+        for line in lines.iter() {
+            reducer(line, initial);
+        }
+
+        return true;
+    }
+}
+
 pub fn get_input(day: u32) -> Result<String, reqwest::Error> {
     let cached = cache_read(day);
 
@@ -92,25 +109,6 @@ pub fn download_input_with_session(day: u32, session: String) -> Result<String, 
         .header("Cookie", format!("session={}", session))
         .send()?
         .text();
-}
-
-pub fn reduce_string<T>(body: &String, initial: T, reducer: fn(line: &str, accumulator: T) -> T) -> T {
-    let lines: Vec<&str> = body.split("\n").collect();
-
-    let mut accumulator = initial;
-
-    for line in lines.iter() {
-        accumulator = reducer(line, accumulator);
-    }
-
-    return accumulator;
-}
-
-pub fn reduce_file<T>(path: &String, initial: T, reducer: fn(line: &str, accumulator: T) -> T) -> T {
-    let contents = fs::read_to_string(path)
-        .expect("Should have been able to read the file");
-
-    return reduce_string(&contents, initial, reducer);
 }
 
 #[cfg(test)]

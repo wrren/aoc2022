@@ -45,23 +45,22 @@ impl Compartment {
 }
 
 fn main() {
-    let input = aoc::get_input(3)
-        .expect("Failed to retrieve input.");
+    let mut sacks: Vec<RuckSack> = Vec::new();
 
-    let sacks: Vec<RuckSack> = Vec::new();
-
-    fn reducer(line: &str, mut sacks: Vec<RuckSack>) -> Vec<RuckSack> {
+    fn reducer(line: &str, sacks: &mut Vec<RuckSack>) {
         if line.is_empty() {
-            return sacks;
+            return;
         }
 
         let sack = RuckSack::new(line.to_string());
         sacks.push(sack);
-
-        return sacks;
     }
 
-    let sacks = aoc::reduce_string(&input, sacks, reducer);
+    if !aoc::reduce_input(3, &mut sacks, reducer) {
+        println!("Failed to retrieve input.");
+        return;
+    }
+
     let mut total: u32 = 0;
 
     for sack in &sacks {
