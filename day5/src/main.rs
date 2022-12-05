@@ -125,6 +125,10 @@ impl CargoHold {
 
         return tops;
     }
+
+    fn move_crates(&self, crane: &dyn Crane, instructions: &Vec<MoveInstruction>) -> CargoHold {
+        return crane.move_crates(instructions, self);
+    }
 }
 
 struct Context {
@@ -165,11 +169,11 @@ fn main() {
         panic!("Failed to read input.");
     }
 
-    let crate_mover_9000 = CrateMover9000{};
-    let moved_part1 = crate_mover_9000.move_crates(&context.moves, &context.hold);
-    println!("Top Crates (Part 1): {}", moved_part1.top_crates());
+    let crane = CrateMover9000{};
+    let hold = context.hold.move_crates(&crane, &context.moves);
+    println!("Top Crates (Part 1): {}", hold.top_crates());
 
-    let crate_mover_9001 = CrateMover9001{};
-    let moved_part2 = crate_mover_9001.move_crates(&context.moves, &context.hold);
-    println!("Top Crates (Part 2): {}", moved_part2.top_crates());
+    let crane = CrateMover9001{};
+    let hold = context.hold.move_crates(&crane, &context.moves);
+    println!("Top Crates (Part 2): {}", hold.top_crates());
 }
