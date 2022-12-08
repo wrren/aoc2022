@@ -39,7 +39,7 @@ fn cache_read(day: u32) -> Option<String> {
             return None;
         }
         return Some(contents.unwrap());
-    }   
+    }
 
     return None;
 }

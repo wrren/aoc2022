@@ -1,4 +1,5 @@
-use std::collections::{VecDeque, HashSet};
+use std::collections::VecDeque;
+use itertools::Itertools;
 
 fn find_sequence_position(datastream: &String, length: usize) -> Option<usize> {
     let mut buffer: VecDeque<char> = VecDeque::new();
@@ -6,15 +7,11 @@ fn find_sequence_position(datastream: &String, length: usize) -> Option<usize> {
         if buffer.len() == length {
             buffer.pop_back();
         }
-
         buffer.push_front(c);
-        let set: HashSet<char> = HashSet::from_iter(buffer.iter().cloned());
-
-        if set.len() == length {
+        if buffer.iter().unique().count() == length {
             return Some(i + 1);
         }
     }
-
     return None;
 }
 
