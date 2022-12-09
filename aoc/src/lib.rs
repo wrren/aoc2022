@@ -49,14 +49,7 @@ fn cache_write(day: u32, input: &String) {
 
     if target_opt.is_some() {
         let target = target_opt.unwrap();
-        let target_str = target.to_str().unwrap();
-        let result = fs::write(&target, input);
-
-        if result.is_ok() {
-            println!("Cache Write Successful");
-        } else {
-            println!("Cache Write Failed to {}: {}", target_str, result.unwrap_err());
-        }
+        fs::write(&target, input).expect("Failed to write to input cache");
     }
 }
 
