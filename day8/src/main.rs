@@ -1,8 +1,50 @@
+use std::collections::HashMap;
+
+struct Tree {
+    height: i32,
+    visibility: usize,
+    viewing: Vec<usize>
+}
+
+impl Tree {
+    fn scenic_score(&self) -> usize {
+        return self.viewing.iter().fold(1, |s, v| s * v);
+    }
+
+    fn maybe_drop_visibility(&mut self, to_edge: usize, height: i32, heights: &mut HashMap<i32, usize>) -> i32 {
+        let mut found = false;
+        let mut closest: usize = 0;
+
+        for h in self.height..10 {
+            let e = heights.get(&h);
+            if e.is_some() && e.unwrap() > &closest {
+                closest = *e.unwrap();
+                found = true;
+            }
+        }
+
+        if !found {
+            self.viewing.push(to_edge);
+        } else {
+            self.viewing.push(to_edge - closest);
+        }
+
+        heights.insert(self.height, to_edge);
+
+        if height >= self.height {
+            self.visibility -= 1;
+            return height;
+        }
+        return self.height;
+    }
+}
+
 struct TreeGrid {
     rows: usize,
     cols: usize,
-    trees: Vec<Vec<u32>>
+    trees: Vec<Vec<Tree>>
 }
+
 
 impl TreeGrid {
     fn new() -> TreeGrid {
@@ -16,85 +58,84 @@ impl TreeGrid {
 
         self.cols = line.len();
 
-        let mut row: Vec<u32> = Vec::new();
+        let mut row: Vec<Tree> = Vec::new();
         for c in line.chars() {
-            row.push(c as u32 - '0' as u32);
+            row.push(Tree{
+                height: c as i32 - '0' as i32,
+                viewing: Vec::new(),
+                visibility: 4
+            });
         }
 
         self.rows += 1;
         self.trees.push(row);
     }
 
-    fn get_tree(&self, i: usize, j: usize) -> u32 {
-        return *self.trees
-                .get(i)
+    fn get_tree(&mut self, i: usize, j: usize) -> &mut Tree {
+        return self.trees
+                .get_mut(i)
                 .expect("row does not exist")
-                .get(j)
+                .get_mut(j)
                 .expect("column does not exist");
-    }
-
-    fn is_visible(&self, i: usize, j: usize, height: u32) -> bool {
-        if i == 0 || i == self.rows - 1 || j == 0 || j == self.cols - 1 {
-            return true;
-        }
-
-        let mut visible = true;
-
-        for v in 0..i {
-            if self.get_tree(v, j) > height {
-                visible = false;
-                break;
-            }
-        }
-
-        if visible {
-            return true;
-        }
-
-        for v in i+1..self.rows {
-            if self.get_tree(v, j) > height {
-                visible = false;
-                break;
-            }
-        }
-
-        if visible {
-            return true;
-        }
-
-        for v in 0..j {
-            if self.get_tree(i, v) > height {
-                visible = false;
-                break;
-            }
-        }
-
-        if visible {
-            return true;
-        }
-
-        for v in j+1..self.cols {
-            if self.get_tree(i, v) > height {
-                visible = false;
-                break;
-            }
-        }
-
-        return visible;
     }
 
     fn count_visible(&self) -> usize {
         let mut visible: usize = 0;
 
-        for i in 0..self.rows {
-            for j in 0..self.cols {
-                if self.is_visible(i, j, self.get_tree(i, j)) {
+        for v in self.trees.iter() {
+            for t in v.iter() {
+                if t.visibility > 0 {
                     visible += 1;
                 }
             }
         }
-
         return visible;
+    }
+
+    fn highest_scenic(&self) -> usize {
+        let mut scenic: usize = 0;
+
+        for v in self.trees.iter() {
+            for t in v.iter() {
+                if t.scenic_score() > scenic {
+                    scenic = t.scenic_score();
+                }
+            }
+        }
+        return scenic;
+    }
+
+    fn mark_visible(&mut self) {
+        let rows: usize = self.rows;
+        let cols: usize = self.cols;
+
+        for i in 0..rows {
+            let mut height = -1;
+            let mut heights: HashMap<i32, usize> = HashMap::new();
+            for j in 0..cols {
+                height = self.get_tree(i, j).maybe_drop_visibility(j, height, &mut heights);
+            }
+
+            let mut height = -1;
+            let mut heights: HashMap<i32, usize> = HashMap::new();
+            for j in (0..cols).rev() {
+                height = self.get_tree(i, j).maybe_drop_visibility(cols - 1 - j, height, &mut heights);
+            }
+        }
+
+        for j in 0..cols {
+            let mut height = -1;
+            let mut heights: HashMap<i32, usize> = HashMap::new();
+            for i in 0..rows {
+                height = self.get_tree(i, j).maybe_drop_visibility(i, height, &mut heights);
+            }
+
+            let mut height = -1;
+            let mut heights: HashMap<i32, usize> = HashMap::new();
+            for i in (0..rows).rev() {
+                height = self.get_tree(i, j).maybe_drop_visibility(rows - 1 - i, height, &mut heights);
+            }
+        }
     }
 }
 
@@ -109,5 +150,8 @@ fn main() {
         panic!("Failed to read input");
     }
 
+    grid.mark_visible();
+
     println!("{} Visible Trees", grid.count_visible());
+    println!("Highest Scenic Score: {}", grid.highest_scenic());
 }
